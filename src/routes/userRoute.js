@@ -15,6 +15,6 @@ userRouter.post("/logout", logoutUser);
 userRouter.get("/auth/google",redirectOauthGoogle);
 userRouter.get("/auth/google/callback",authGoogleCallback);
 
-userRouter.get("/status",getLoginStatus);
+userRouter.get("/status",verifyUserJWT,getLoginStatus);
 
 export default userRouter;  

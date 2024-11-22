@@ -2,9 +2,9 @@ import {createToken} from "../../utils/createAndVerifyToken.js";
 import userServices from "../../services/userService.js";
 import {hashPassword,comparePlainAndHashed} from "../../utils/hashAndCompare.js";
 
-const SUCCESS_STATUS = process.env.SUCCESS_STATUS;
-const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
-const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
+const SUCCESS_STATUS = 200;
+const BAD_REQUEST_STATUS = 400;
+const SERVER_ERROR_STATUS = 500;
 
 const TOKEN_NAME='token';
 
@@ -59,12 +59,7 @@ const loginUser = async (req, res) => {
             .send({
                 status: "success",
                 message: "login",
-                data: {
-                    fullName: user.fullName,
-                    userName: user.userName,
-                    email: user.email,
-                    role: user.role,
-                }
+                user: user,
             });
     }
     catch (e) {

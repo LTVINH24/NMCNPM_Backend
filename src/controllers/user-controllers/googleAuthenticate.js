@@ -3,9 +3,9 @@ import userServices from "../../services/userService.js";
 import { hashPassword } from "../../utils/hashAndCompare.js";
 import { createToken } from "../../utils/createAndVerifyToken.js";
 
-const SUCCESS_STATUS = process.env.SUCCESS_STATUS;
-const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
-const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
+const SUCCESS_STATUS = 200;
+const BAD_REQUEST_STATUS = 400;
+const SERVER_ERROR_STATUS = 500;
 
 const GOOGLE_SECRET_STRING="Google";
 
@@ -75,10 +75,9 @@ const redirectOauthGoogle = async (req, res) => {
 const authGoogleCallback = async (req, res) => {
     try {
         if (!isCallBackQueryValid(req)) {
-            return res.status(BAD_REQUEST_STATUS).send({
-                status: "error",
-                message: "Callback query is not valid",
-            });
+            return res
+            .status(BAD_REQUEST_STATUS)
+            .redirect(`${process.env.FRONTEND_BASE_URL}`);
         }
         const { code } = req.query;
         const formData = createUrlEncodedFormData(code);
@@ -94,23 +93,17 @@ const authGoogleCallback = async (req, res) => {
             if(user.userName.includes(GOOGLE_SECRET_STRING)){
                 const token=createToken(user);
                 return res
+                .status(SUCCESS_STATUS)
                 .cookie(TOKEN_NAME, token, {
                     httpOnly: true,
                 })
-                .status(SUCCESS_STATUS).send({
-                    status: "success",
-                    msg: "user created",
-                    data: {
-                        user: user,
-                    }
-                });
+                .redirect(`${process.env.FRONTEND_BASE_URL}`);
             }
             //if user is already registered with email
             else{
-                return res.status(BAD_REQUEST_STATUS).send({
-                    status: "error",
-                    message: "email already exists",
-                });
+                return res
+                    .status(BAD_REQUEST_STATUS)
+                    .redirect(`${process.env.FRONTEND_BASE_URL}`);
             }
 
         }   
@@ -118,22 +111,15 @@ const authGoogleCallback = async (req, res) => {
         await userServices.saveUser(newUser);
         const token = createToken(newUser);
         return res
+            .status(SUCCESS_STATUS)
             .cookie(TOKEN_NAME, token, {
                 httpOnly: true,
             })
-            .status(SUCCESS_STATUS).send({
-                status: "success",
-                msg: "user created",
-                data: {
-                    user: newUser,
-                }
-            });
+            .redirect(`${process.env.FRONTEND_BASE_URL}`);
     }
     catch (e) {
-        return res.status(SERVER_ERROR_STATUS).send({
-            status: "error",
-            message: e.message,
-        });
+        return res.status(SERVER_ERROR_STATUS)
+        .redirect(`${process.env.FRONTEND_BASE_URL}`);
     }
 };
 
