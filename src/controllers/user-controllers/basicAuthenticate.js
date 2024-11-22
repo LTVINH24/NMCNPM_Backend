@@ -2,9 +2,9 @@ import {createToken} from "../../utils/createAndVerifyToken.js";
 import userServices from "../../services/userService.js";
 import {hashPassword,comparePlainAndHashed} from "../../utils/hashAndCompare.js";
 
-const SUCCESS_STATUS = process.env.SUCCESS_STATUS;
-const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
-const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
+const SUCCESS_STATUS = 200;
+const BAD_REQUEST_STATUS = 400;
+const SERVER_ERROR_STATUS = 500;
 
 const TOKEN_NAME='token';
 
@@ -127,7 +127,6 @@ const logoutUser = async (req, res) => {
 const getLoginStatus=async(req,res)=>{
     try{
         const user=req.user;
-        console.log(user);
         if(!user){
             return res.status(BAD_REQUEST_STATUS).send({
                 status: "error",
