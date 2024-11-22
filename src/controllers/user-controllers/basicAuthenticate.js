@@ -59,12 +59,7 @@ const loginUser = async (req, res) => {
             .send({
                 status: "success",
                 message: "login",
-                data: {
-                    fullName: user.fullName,
-                    userName: user.userName,
-                    email: user.email,
-                    role: user.role,
-                }
+                user: user,
             });
     }
     catch (e) {
@@ -132,6 +127,7 @@ const logoutUser = async (req, res) => {
 const getLoginStatus=async(req,res)=>{
     try{
         const user=req.user;
+        console.log(user);
         if(!user){
             return res.status(BAD_REQUEST_STATUS).send({
                 status: "error",

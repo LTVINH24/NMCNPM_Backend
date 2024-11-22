@@ -3,9 +3,9 @@ import userServices from "../../services/userService.js";
 import { hashPassword } from "../../utils/hashAndCompare.js";
 import { createToken } from "../../utils/createAndVerifyToken.js";
 
-const SUCCESS_STATUS = process.env.SUCCESS_STATUS;
-const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
-const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
+const SUCCESS_STATUS = Number(process.env.SUCCESS_STATUS);
+const BAD_REQUEST_STATUS = Number(process.env.BAD_REQUEST_STATUS);
+const SERVER_ERROR_STATUS = Number(process.env.SERVER_ERROR_STATUS);
 
 const GOOGLE_SECRET_STRING="Google";
 
@@ -94,16 +94,11 @@ const authGoogleCallback = async (req, res) => {
             if(user.userName.includes(GOOGLE_SECRET_STRING)){
                 const token=createToken(user);
                 return res
+                .status(SUCCESS_STATUS)
                 .cookie(TOKEN_NAME, token, {
                     httpOnly: true,
                 })
-                .status(SUCCESS_STATUS).send({
-                    status: "success",
-                    msg: "user created",
-                    data: {
-                        user: user,
-                    }
-                });
+                .redirect("http://localhost:5173");
             }
             //if user is already registered with email
             else{
@@ -118,16 +113,11 @@ const authGoogleCallback = async (req, res) => {
         await userServices.saveUser(newUser);
         const token = createToken(newUser);
         return res
+            .status(SUCCESS_STATUS)
             .cookie(TOKEN_NAME, token, {
                 httpOnly: true,
             })
-            .status(SUCCESS_STATUS).send({
-                status: "success",
-                msg: "user created",
-                data: {
-                    user: newUser,
-                }
-            });
+            .redirect("http://localhost:5173");
     }
     catch (e) {
         return res.status(SERVER_ERROR_STATUS).send({
