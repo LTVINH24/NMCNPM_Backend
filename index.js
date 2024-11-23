@@ -8,10 +8,11 @@ import upload from './src/config/multer.js';
 
 import userRouter from "./src/routes/userRoute.js";
 import productRouter from "./src/routes/productRoute.js";
-import adminProductRouter from "./src/routes/admin/productDetails.js"
 
-import uploadImage from './src/utils/uploadImageToCloud.js';
-import deleteImageFromDisk from './src/utils/deleteImageFromDisk.js';
+import adminProductDetailsRouter from "./src/routes/admin/productDetails.js";
+import adminProductRouter from './src/routes/admin/product.js';
+
+
 const corsOptions = {
     origin: `${process.env.FRONTEND_BASE_URL}`,
     credentials: true, 
@@ -32,7 +33,8 @@ app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 
 
-app.use("/admin/productDetails", adminProductRouter);
+app.use("/admin/productDetails", adminProductDetailsRouter);
+app.use("/admin/products", adminProductRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log(`Server started on http://localhost:${process.env.PORT||5000}`);
