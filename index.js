@@ -4,11 +4,14 @@ import express from 'express';
 import mongoose from "./src/config/mongoose.js";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import upload from './src/config/multer.js';
 
 import userRouter from "./src/routes/userRoute.js";
 import productRouter from "./src/routes/productRoute.js";
 import adminProductRouter from "./src/routes/admin/productDetails.js"
 
+import uploadImage from './src/utils/uploadImageToCloud.js';
+import deleteImageFromDisk from './src/utils/deleteImageFromDisk.js';
 const corsOptions = {
     origin: `${process.env.FRONTEND_BASE_URL}`,
     credentials: true, 
@@ -23,6 +26,8 @@ app.use(cors(corsOptions));
 app.get("/", (req, res) => {
     return res.send("Hello World");
 });
+
+
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 
