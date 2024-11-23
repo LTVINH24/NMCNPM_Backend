@@ -2,9 +2,11 @@ import Product from "../models/Product.js";
 
 
 const productService = {
-    
-    
 
+    isProductExist: async (productId) => {
+        const product = await Product.findById(productId);
+        return product !== null;
+    },
     getProducts: async ({ brands, types, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
         const products = await Product.find()
             .byType(types)

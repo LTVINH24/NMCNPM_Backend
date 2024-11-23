@@ -2,13 +2,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import mongoose from "./src/config/mongoose.js";
-import userRouter from "./src/routes/userRoute.js";
-import productRouter from "./src/routes/productRoute.js";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+import userRouter from "./src/routes/userRoute.js";
+import productRouter from "./src/routes/productRoute.js";
+import adminProductRouter from "./src/routes/admin/productDetails.js"
+
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: `${process.env.FRONTEND_BASE_URL}`,
     credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -24,6 +26,8 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 
+
+app.use("/admin/productDetails", adminProductRouter);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log(`Server started on http://localhost:${process.env.PORT||5000}`);
