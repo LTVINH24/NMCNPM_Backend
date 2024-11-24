@@ -34,11 +34,11 @@ const createAddress = async(req, res) => {
 
         await addressService.saveAddress(newAddress);
 
-        return res.status(SUCCESS_REQUEST_STATUS).send({
+        return res.status(SUCCESS_STATUS).send({
             message: "Address created successfully",
         });
     } 
-    catch (error) {
+    catch (e) {
         return res.status(SERVER_ERROR_STATUS).send({
             message: "Server error",
         });
@@ -63,11 +63,11 @@ const deleteAddress = async(req, res) => {
             });
         }
 
-        return res.status(SUCCESS_REQUEST_STATUS).send({
+        return res.status(SUCCESS_STATUS).send({
             message: "Address deleted successfully",
         });
     } 
-    catch (error) {
+    catch (e) {
         return res.status(SERVER_ERROR_STATUS).send({
             message: "Server error",
         });
@@ -87,11 +87,11 @@ const updateAddress = async(req, res) => {
             });
         }
 
-        return res.status(SUCCESS_REQUEST_STATUS).send({
+        return res.status(SUCCESS_STATUS).send({
             message: "Address updated successfully",
         });
     } 
-    catch (error) {
+    catch (e) {
         return res.status(SERVER_ERROR_STATUS).send({
             message: "Server error",
         });
@@ -116,7 +116,7 @@ const setDefaultAddress = async(req, res) => {
             message: "Address set as default successfully",
         });
     } 
-    catch (error) {
+    catch (e) {
         res.status(SERVER_ERROR_STATUS).send({
             message: "Server error",
         });
