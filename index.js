@@ -21,8 +21,8 @@ app.use(cors(corsOptions));
 app.get("/", (req, res) => {
     return res.send("Hello World");
 });
-app.use("/api/users", userRouter);
-app.use("/api/products", productRouter);
+app.use("/users", userRouter);
+app.use("/products", productRouter);
 
 
 app.listen(process.env.PORT || 5000, () => {
