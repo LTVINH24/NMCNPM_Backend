@@ -8,6 +8,7 @@ const userSchema= new mongoose.Schema({
     password: {type: String, required: true},
     avatar:{type:String,default:""},
     role:{type:String,default:"user"},
+    cartData:{type:Object,default:{}},
     createdAt: {type: Date, default: Date.now},
 });
 const User=mongoose.model('User',userSchema);
