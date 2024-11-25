@@ -25,6 +25,10 @@ const isRegisterDataMiss = (req) => {
     return false;
 }
 
+const isValidConfirmPassword=(password,confirmPassword)=>{
+    return password===confirmPassword;
+};
+
 //controllers
 
 const loginUser = async (req, res) => {
@@ -72,14 +76,19 @@ const loginUser = async (req, res) => {
 
 const registerUser = async (req, res) => {
     try {
-        const { fullName, userName, email, password } = req.body;
+        const { fullName, userName, email, password ,confirmPassword} = req.body;
         if (isRegisterDataMiss(req)) {
             return res.status(BAD_REQUEST_STATUS).send({
                 status: "error",
                 message: "Please give essential data",
             });
         }
-
+        if(!isValidConfirmPassword(password,confirmPassword)){
+            return res.status(BAD_REQUEST_STATUS).send({
+                status: "error", 
+                message: "password and confirm password do not match",
+            });
+        }
         if (await userServices.checkIfUserExists(email, userName)) {
             return res.status(BAD_REQUEST_STATUS).send({
                 status: "error",

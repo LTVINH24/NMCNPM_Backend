@@ -27,12 +27,11 @@ app.use(cors(corsOptions));
 app.get("/", (req, res) => {
     return res.send("Hello World");
 });
-
-
+ feature/productDetails
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
-
-
+app.use("/users", userRouter);
+app.use("/products", productRouter);
 app.use("/admin/productDetails", adminProductDetailsRouter);
 app.use("/admin/products", adminProductRouter);
 
