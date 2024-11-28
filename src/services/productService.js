@@ -1,3 +1,4 @@
+import mongoose, { mongo } from "mongoose";
 import Product from "../models/Product.js";
 
 
@@ -42,11 +43,59 @@ const productService = {
         await Product.findByIdAndDelete(productId);
     },
 
-    // getRelatedProducts:async(product)=>{
-    //     const products=await Product.find({type:product.type,_id:{$ne:product._id}});
-    //     return products;
-    // },
-
+    getRelatedProductsByProductId: async (productId) => {
+        const product = await Product.findById(productId)
+            .populate('brand_id')  
+            .populate('category_id')  
+            .lean();
+        
+        const products = await Product.aggregate([
+            {
+                $lookup: {
+                    from: 'categories',  
+                    localField: 'category_id',  
+                    foreignField: '_id',  
+                    as: 'category'  
+                }
+            },
+            {
+                $lookup: {
+                    from: 'brands',  
+                    localField: 'brand_id',  
+                    foreignField: '_id',  
+                    as: 'brand'  
+                }
+            },
+            {
+                $match: {
+                    $and: [
+                        {
+                            $or: [
+                                {
+                                    'category.name': {
+                                        $regex: new RegExp(`^${product.category_id.name}$`, 'i')  
+                                    }
+                                },
+                                {
+                                    'brand.name': {
+                                        $regex: new RegExp(`^${product.brand_id.name}$`, 'i')  
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            _id: { $ne: new mongoose.Types.ObjectId(productId) }  
+                        }
+                    ]
+                }
+            }
+        ]);
+        
+        return products;
+    },
+    
+    
+    
     getProductsBySearch: async (searchTerm,
         { brands, categories, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
             const products = await Product.aggregate([

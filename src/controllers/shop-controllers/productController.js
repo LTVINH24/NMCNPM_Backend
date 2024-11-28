@@ -54,7 +54,7 @@ const populateProduct=(product)=>{
     }
 };
 
-const populateProductSearch=(product)=>{
+const populateAggregatedProducts=(product)=>{
     delete product.category_id;
     delete product.brand_id;
     return {
@@ -113,7 +113,7 @@ const searchProducts = async (req, res) => {
             products=products.slice((page-1)*rowsPerPage,page*rowsPerPage);
         }
         return res.status(SUCCESS_STATUS).send({
-            products:products.map(product=>populateProductSearch(product)),
+            products:products.map(product=>populateAggregatedProducts(product)),
             totalProducts,
         })
     }
@@ -123,4 +123,19 @@ const searchProducts = async (req, res) => {
         });
     }
 };
-export { getAllFilteredProducts,searchProducts};
+
+const getRelatedProducts=async(req,res)=>{
+    try{
+        const {productId}=req.params;
+        const products=await productService.getRelatedProductsByProductId(productId);
+        return res.status(SUCCESS_STATUS).send({
+            products:products.map(product=>populateAggregatedProducts(product)),
+        });
+    }
+    catch(e){
+        return res.status(SERVER_ERROR_STATUS).send({
+            message:"server error",
+        });
+    }
+}
+export { getAllFilteredProducts,searchProducts,getRelatedProducts};
