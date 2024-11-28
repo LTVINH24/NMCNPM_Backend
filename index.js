@@ -7,10 +7,14 @@ import cookieParser from 'cookie-parser';
 import upload from './src/config/multer.js';
 
 import userRouter from "./src/routes/userRoute.js";
+import productDetailsRouter from './src/routes/productDetailsRoute.js';
 import productRouter from "./src/routes/productRoute.js";
 
 import adminProductDetailsRouter from "./src/routes/admin/productDetails.js";
 import adminProductRouter from './src/routes/admin/product.js';
+
+import brandService from "./src/services/brandService.js";
+import categoryService from "./src/services/categoryService.js";
 
 
 const corsOptions = {
@@ -31,6 +35,7 @@ app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/users", userRouter);
 app.use("/products", productRouter);
+app.use("/product-details", productDetailsRouter);
 app.use("/admin/productDetails", adminProductDetailsRouter);
 app.use("/admin/products", adminProductRouter);
 

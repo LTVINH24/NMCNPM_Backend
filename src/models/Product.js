@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const productSchema= new mongoose.Schema({
-    category: {
+    category_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
         required: true,
@@ -11,7 +11,7 @@ const productSchema= new mongoose.Schema({
     salePrice:{
         type:Number,
     },
-    category: {
+    brand_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Brand',
         required: true,
@@ -29,17 +29,27 @@ const productSchema= new mongoose.Schema({
 
 //exptected receit an arr
 productSchema.query.byCategory = function(categories) {
-    if (!categories || categories.length <= 0) return this;
-    return this.where({
-        type: { $in: categories }}
-    );
+    if (!categories || categories.length <= 0){
+        return this.populate('category');
+    }
+    return this.populate({
+        path: 'category',
+        match:{
+            name:{$in:categories}
+        }
+    });
 };
 
 productSchema.query.byBrand = function(brands) {
-    if (!brands || brands.length <= 0) return this;
-    return this.where({
-        brand: { $in: brands }}
-    );
+    if (!brands || brands.length <= 0){
+        return this.populate('brand');
+    }
+    return this.populate({
+        path: 'brand',
+        match:{
+            name:{$in:brands}
+        }
+    });
 };
 
 productSchema.query.byPrice=function(minPrice,maxPrice){

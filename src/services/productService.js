@@ -18,14 +18,14 @@ const productService = {
         const product = await Product.findById(productId);
         return product !== null;
     },
-    getProducts: async ({ brands, types, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
+    getProducts: async ({ brands, categories, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
         const products = await Product.find()
-            .byType(types)
+            .byCategory(categories)
             .byBrand(brands)
             .byPrice(minPrice,maxPrice)
             .sort({ [sortField]: sortOrder })
             .exec();
-        return products;
+        return products.filter(product=>product.category!==null&&product.brand!==null);
     },
     
     getProductById: async (productId) => {
@@ -42,28 +42,55 @@ const productService = {
         await Product.findByIdAndDelete(productId);
     },
 
-    getRelatedProducts:async(product)=>{
-        const products=await Product.find({type:product.type,_id:{$ne:product._id}});
-        return products;
-    },
+    // getRelatedProducts:async(product)=>{
+    //     const products=await Product.find({type:product.type,_id:{$ne:product._id}});
+    //     return products;
+    // },
 
     getProductsBySearch: async (searchTerm,
-        { brands, types, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
-        const products = await Product.find({
-            $or: [
-                { 'category.name': { $regex: searchTerm, $options: 'i' } },
-                { 'brand.name': { $regex: searchTerm, $options: 'i' } },
-                { name: { $regex: searchTerm, $options: 'i' } },
-                {description:{ $regex: searchTerm, $options: 'i' }},
-            ]
-        })
-        .populate('category')
-        .populate('brand')
-        .byType(types)
-        .byBrand(brands)
-        .byPrice(minPrice,maxPrice)
-        .sort({ [sortField]: sortOrder })
-        .exec();
+        { brands, categories, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
+            const products = await Product.aggregate([
+                {
+                    $lookup:{
+                        from:'brands',
+                        localField:'brand_id',
+                        foreignField:'_id',
+                        as:'brand'
+                    }
+                },
+                {$unwind:'$brand'},
+                {
+                    $lookup:{
+                        from:'categories',
+                        localField:'category_id',
+                        foreignField:'_id',
+                        as:'category'
+                    }
+                },
+                {$unwind:'$category'},
+                {
+                    $match:{
+                        $and: [
+                            {
+                                $or:[
+                                    { 'category.name': { $regex: searchTerm, $options: 'i' } },
+                                    { 'brand.name': { $regex: searchTerm, $options: 'i' } },
+                                    { name: { $regex: searchTerm, $options: 'i' } },
+                                    { description:{ $regex: searchTerm, $options: 'i' }}
+                                ]
+                            },
+                            categories.length > 0 ? { 'category.name': { $in: categories } } : {},
+                            brands.length > 0 ? { 'brand.name': { $in: brands } } : {},
+                            {
+                                price:{$gte:Number(minPrice),$lte:Number(maxPrice)}
+                            }
+                        ]
+                    }
+                },
+                {
+                    $sort: { [sortField]: parseInt(sortOrder) }
+                }
+            ]);
         return products;
     },
     

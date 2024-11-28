@@ -1,37 +1,27 @@
 import productService from "../../services/productService.js";
 
 
-const SUCCESS_STATUS = process.env.SUCCESS_STATUS;
-const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
-const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
+const SUCCESS_STATUS = 200;
+const BAD_REQUEST_STATUS = 400;
+const SERVER_ERROR_STATUS = 500;
 const ROW_PER_PAGE=6;
 
-const formatQueryParams = async(filters, sort) => {
-    //const {page,rowPerPage}=req.query;
-    const sortField = sort?.field?.toLowerCase() || 'price';
-    const sortOrder = sort?.order?.toLowerCase() === 'desc' ? -1 : 1;
-    const brands = filters?.brands?.map((brand) => (brand.toLowerCase())) || [];
-    const types = filters?.types?.map((type) => (type.toLowerCase())) || [];
-    return {brands,types,sortField,sortOrder};
-    //return {brands,types,sortField,sortOrder,page,rowPAg};
-}
-
 const formatSortParam=(req)=>{
-    const sort=req.query.sort||"price-asc";
+    const sort=req.query.sort||"price-desc";
     const SORT_FIELD_INDEX=0;
     const SORT_ORDER_INDEX=1;
     const sortParam=sort.split('-');
     const sortField=sortParam[SORT_FIELD_INDEX];
-    const sortOrder=sortParam[SORT_ORDER_INDEX];
+    const sortOrder=sortParam[SORT_ORDER_INDEX]==='asc'?1:-1;
     return {sortField,sortOrder};
 }
 
 const formatFilterParam=(req)=>{
     const brandsEncoded=req.query.brand||"";
-    const typesEncoded=req.query.type||"";
-    const brands=brandsEncoded?decodeURIComponent(brandsEncoded).split(','):[];
-    const types=typesEncoded?decodeURIComponent(typesEncoded).split(','):[];
-    return {brands,types};    
+    const categoriesEncoded=req.query.category||"";
+    const brands=brandsEncoded?decodeURIComponent(brandsEncoded).split(','):[].map((brand)=>brand.toLowerCase());
+    const categories=categoriesEncoded?decodeURIComponent(categoriesEncoded).split(','):[].map((category)=>category.toLowerCase());
+    return {brands,categories};    
 }
 
 const formatPriceParam=(req)=>{
@@ -50,10 +40,28 @@ const formatPriceParam=(req)=>{
 };
 const getQueryParams=(req)=>{
     const {page,rowPerPage}=req.query;
-    const {brands,types}=formatFilterParam(req);
+    const {brands,categories}=formatFilterParam(req);
     const {sortField,sortOrder}=formatSortParam(req);
     const {minPrice,maxPrice}=formatPriceParam(req);
-    return {brands,types,sortField,sortOrder,page,rowPerPage,minPrice,maxPrice};
+    return {brands,categories,sortField,sortOrder,page,rowPerPage,minPrice,maxPrice};
+}
+
+const populateProduct=(product)=>{
+    return {
+        ...product,
+        brand:product.brand_id.name,
+        category:product.category_id.name,
+    }
+};
+
+const populateProductSearch=(product)=>{
+    delete product.category_id;
+    delete product.brand_id;
+    return {
+        ...product,
+        brand:product.brand.name,
+        category:product.category.name,
+    }
 }
 
 
@@ -62,12 +70,12 @@ const getQueryParams=(req)=>{
 const getAllFilteredProducts = async (req, res) => {
     try {
         const {
-            brands,types,
+            brands,categories,
             sortField,sortOrder,
             page=1,rowsPerPage=ROW_PER_PAGE,
             minPrice,maxPrice}=getQueryParams(req);
         const {onSales}=req.query;
-        let products = await productService.getProducts({ brands, types, sortField, sortOrder,minPrice,maxPrice });
+        let products = await productService.getProducts({ brands, categories, sortField, sortOrder,minPrice,maxPrice });
         if(onSales==='true'){
             products=products.filter((product)=>product.salePrice>0);
         }
@@ -76,7 +84,7 @@ const getAllFilteredProducts = async (req, res) => {
             products=products.slice((page-1)*rowsPerPage,page*rowsPerPage);
         }
         return res.status(SUCCESS_STATUS).send({
-            products,
+            products:products.map(product=>populateProduct(product)),
             totalProducts,
         })
     }
@@ -90,13 +98,13 @@ const getAllFilteredProducts = async (req, res) => {
 const searchProducts = async (req, res) => {
     try {
         const {
-            brands,types,
+            brands,categories,
             sortField,sortOrder,
             page=1,rowsPerPage=ROW_PER_PAGE,
             minPrice,maxPrice}=getQueryParams(req);
         const {onSales}=req.query;
         const {search}=req.query;
-        let products = await productService.getProductsBySearch(search,{ brands, types, sortField, sortOrder,minPrice,maxPrice });
+        let products = await productService.getProductsBySearch(search,{ brands, categories, sortField, sortOrder,minPrice,maxPrice });
         if(onSales==='true'){
             products=products.filter((product)=>product.salePrice>0);
         }
@@ -105,7 +113,7 @@ const searchProducts = async (req, res) => {
             products=products.slice((page-1)*rowsPerPage,page*rowsPerPage);
         }
         return res.status(SUCCESS_STATUS).send({
-            products,
+            products:products.map(product=>populateProductSearch(product)),
             totalProducts,
         })
     }

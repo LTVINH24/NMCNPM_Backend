@@ -1,30 +1,42 @@
-import productDetails from "../models/ProductDetails.js";
+import ProductProperties from "../models/ProductProperties.js";
+import ProductPropertyValues from "../models/ProductPropertyValues.js";
+
 
 const productDetailsService={
-    create:async(details)=>{
-        const productDetailsRes=await productDetails.create(details);
-        return productDetailsRes;
+
+    createProductPropertyValue:async(product_id,property_id,value)=>{
+        const productPropertyValue=new ProductPropertyValues(product_id,property_id,value);
+        return productPropertyValue;
     },
-    save:async(productDetails)=>{
-        await productDetails.save();
+
+    saveProductPropertyValue:async(productPropertyValue)=>{
+        const savedProductPropertyValue=await productPropertyValue.save();
+        return savedProductPropertyValue;
     },
-    getByProductId:async(id)=>{
-        const productDetailsRes=await productDetails.findOne({productId:id}).lean()||{};
-        return productDetailsRes;
-    },  
-    getAll:async()=>{
-        const allProductDetails=await productDetails.find().lean();
-        return allProductDetails;
+
+    createProductPropertyOfCategory:async(category_id,name,description)=>{
+        const productProperty=new ProductProperties(category_id,name,description);
+        return productProperty;
     },
-    deleteByProductId:async(id)=>{
-        const productDetailsRes=await productDetails.findOneAndDelete({productId:id}).lean()||{};
-        return productDetailsRes;
+
+    saveProductPropertyOfCategory:async(productProperty)=>{
+        const savedProductProperty=await productProperty.save();
+        return savedProductProperty;
     },
-    updateByProductId:async(id,details)=>{
-        const productDetailsRes=await productDetails
-        .findOneAndUpdate({productId:id},{...details},{new:true}).lean()||{};
-        return productDetailsRes;
-    }
+
+    getPropertiesByCategory:async(category_id)=>{
+        const properties=await ProductProperties
+        .find({category_id})
+        .lean();
+        return properties;
+    },
+    getByProductDetailsId:async(id)=>{
+        const productDeails=await ProductPropertyValues
+        .find({product_id:id})
+        .populate('property_id')
+        .lean();
+        return productDeails;
+    },
 };
 
 export default productDetailsService;

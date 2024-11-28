@@ -5,7 +5,7 @@ const brandSchema = new mongoose.Schema({
     image: { type: String, required: true },
     description: { type: String, default: "No description" },
     createdAt: { type: Date, default: Date.now },
-});s
+});
 
 const Brand=mongoose.model('Brand',brandSchema);
 export default Brand;
