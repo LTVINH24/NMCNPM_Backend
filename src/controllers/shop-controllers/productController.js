@@ -53,7 +53,6 @@ const getQueryParams=(req)=>{
     const {brands,types}=formatFilterParam(req);
     const {sortField,sortOrder}=formatSortParam(req);
     const {minPrice,maxPrice}=formatPriceParam(req);
-
     return {brands,types,sortField,sortOrder,page,rowPerPage,minPrice,maxPrice};
 }
 

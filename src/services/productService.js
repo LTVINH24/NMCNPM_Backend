@@ -51,12 +51,14 @@ const productService = {
         { brands, types, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {
         const products = await Product.find({
             $or: [
-                { type: { $regex: searchTerm, $options: 'i' } },
-                { brand: { $regex: searchTerm, $options: 'i' } },
+                { 'category.name': { $regex: searchTerm, $options: 'i' } },
+                { 'brand.name': { $regex: searchTerm, $options: 'i' } },
                 { name: { $regex: searchTerm, $options: 'i' } },
                 {description:{ $regex: searchTerm, $options: 'i' }},
             ]
         })
+        .populate('category')
+        .populate('brand')
         .byType(types)
         .byBrand(brands)
         .byPrice(minPrice,maxPrice)
