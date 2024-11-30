@@ -142,7 +142,7 @@ const productService = {
             ]);
         return products;
     },
-    
+
     getTopProducts: async (top) => {
         const products = await Product.find().sort({ rating: -1 }).limit(top);
         return products;

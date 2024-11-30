@@ -12,9 +12,8 @@ import productRouter from "./src/routes/productRoute.js";
 
 import adminProductDetailsRouter from "./src/routes/admin/productDetails.js";
 import adminProductRouter from './src/routes/admin/product.js';
-
-import brandService from "./src/services/brandService.js";
-import categoryService from "./src/services/categoryService.js";
+import adminBrandRouter from './src/routes/admin/brand.js';
+import adminCategoryRouter from './src/routes/admin/category.js';
 
 
 const corsOptions = {
@@ -38,6 +37,10 @@ app.use("/products", productRouter);
 app.use("/product-details", productDetailsRouter);
 app.use("/admin/productDetails", adminProductDetailsRouter);
 app.use("/admin/products", adminProductRouter);
+app.use("/admin/brands", adminBrandRouter);
+app.use("/admin/categories", adminCategoryRouter);
+
+
 
 app.listen(process.env.PORT || 5000, () => {
     console.log(`Server started on http://localhost:${process.env.PORT||5000}`);
