@@ -10,6 +10,18 @@ const categoryService={
     },
     save:async(category)=>{
         return await category.save();
+    },
+    getAllCategories:async()=>{
+        return await Category.find().lean();
+    },
+    getCategoryById:async(id)=>{
+        return await Category.findById(id).lean();
+    },
+    deleteByCategoryId:async(id)=>{
+        return await Category.findByIdAndDelete(id);
+    },
+    updateCategory:async(id, data)=>{
+        return await Category.findByIdAndUpdate(id, data, {new:true});
     }
 
 };

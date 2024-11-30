@@ -14,6 +14,7 @@ import adminProductDetailsRouter from "./src/routes/admin/productDetails.js";
 import adminProductRouter from './src/routes/admin/product.js';
 import adminBrandRouter from './src/routes/admin/brand.js';
 import adminCategoryRouter from './src/routes/admin/category.js';
+import adminCategoryTypicalDetails from "./src/routes/admin/categoryTypical.js";
 
 
 const corsOptions = {
@@ -39,6 +40,7 @@ app.use("/admin/productDetails", adminProductDetailsRouter);
 app.use("/admin/products", adminProductRouter);
 app.use("/admin/brands", adminBrandRouter);
 app.use("/admin/categories", adminCategoryRouter);
+app.use("/admin/categoryTypicals", adminCategoryTypicalDetails);
 
 
 

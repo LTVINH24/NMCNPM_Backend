@@ -11,7 +11,19 @@ const brandService={
     },
     save:async(brand)=>{
         return await brand.save();
-    }
+    },
+    getBrandById:async(id)=>{
+        return await Brand.findById(id);
+    },
+    deleteByBrandId:async(id)=>{
+        return await Brand.findByIdAndDelete(id);
+    },
+    updateBrand:async(id, data)=>{
+        return await Brand.findByIdAndUpdate(id, data, {new:true});
+    },
+    getAllBrands:async()=>{
+        return await Brand.find().lean();
+    },
 };
 
 export default brandService;

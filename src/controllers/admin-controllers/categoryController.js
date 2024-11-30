@@ -31,49 +31,70 @@ const addCategory = async (req, res) => {
     
 };
 
-const deleteBrand = async (req, res) => {
+const deleteCategory = async (req, res) => {
     try{
-        const brandId=req.params.id;
-        const brand=await brandService.getBrandById(brandId);
-        if(brand){
-            await brandService.deleteByBrandId(brandId);
-            return res.status(OK_STATUS).send({message:"Brand deleted successfully"});
-        }
-        return res.status(BAD_REQUEST_STATUS).send({message:"Brand not found"});
-    }
-    catch(e){
-        return res.status(INTERNAL_SERVER_ERROR_STATUS).send({message:e.message});
-    }
-    
-};
-
-const updateBrand = async (req, res) => {
-    try{
-        const brandId=req.params.id;
-        const brand=await brandService.getBrandById(brandId);
-        if(brand){
-            const {name, description} = req.body;
-            const TMP_DIR_PATH="./tmp";
-            const filePath=TMP_DIR_PATH+"/"+req.file.filename;
-            const image=await uploadImageToCloud(filePath);
-            deleteImageFromDisk(filePath);
-            brand.name=name;
-            brand.description=description;
-            brand.image=image;
-            await brandService.save(brand);
+        const categoryId=req.params.id;
+        const category=await categoryService.getCategoryById(categoryId);
+        if(category){
+            await categoryService.deleteByCategoryId(categoryId);
             return res.status(OK_STATUS).send({
-                    message:"Brand updated successfully",
-                    brand,
-                }
-            );
+                message:"Category deleted successfully"});
         }
-        return res.status(BAD_REQUEST_STATUS).send({message:"Brand not found"});
+        return res.status(BAD_REQUEST_STATUS).send({message:"Category not found"});
     }
     catch(e){
         return res.status(INTERNAL_SERVER_ERROR_STATUS).send({message:e.message});
     }
-    
 };
 
+const updateCategory = async (req, res) => {
+    try{
+        const categoryId=req.params.id;
+        const {name, description} = req.body;
+        const category=await categoryService.getCategoryById(categoryId);
+        if(!category){
+            return res.status(BAD_REQUEST_STATUS).send({message:"Category not found"});
+        }
+        const TMP_DIR_PATH="./tmp";
+        const filePath=TMP_DIR_PATH+"/"+req.file?.filename;
+        const image=req.file?await uploadImageToCloud(filePath):category.image;
+        deleteImageFromDisk(filePath);
+        category.name=name;
+        category.description=description;
+        category.image=image;
+        const updatedCategory=await categoryService.updateCategory(categoryId,category);
+        return res.status(OK_STATUS).send({
+            message:"Category updated successfully",
+            category:updatedCategory});
+        
+    }
+    catch(e){
+        return res.status(INTERNAL_SERVER_ERROR_STATUS).send({message:e.message});
+    }
+};
 
-export {addCategory};
+const getAllCategories = async (req, res) => {
+    try{
+        const categories=await categoryService.getAllCategories();
+        return res.status(OK_STATUS).send(categories);
+    }
+    catch(e){
+        return res.status(INTERNAL_SERVER_ERROR_STATUS).send({message:e.message});
+    }
+};
+
+const getCategoryById = async (req, res) => {
+    try{
+        const categoryId=req.params.id;
+        const category=await categoryService.getCategoryById(categoryId);
+        if(category){
+            return res.status(OK_STATUS).send(category);
+        }
+        return res.status(BAD_REQUEST_STATUS).send({message:"Category not found"});
+    }
+    catch(e){
+        return res.status(INTERNAL_SERVER_ERROR_STATUS).send({message:e.message});
+    }
+};
+
+export {addCategory,updateCategory,deleteCategory,getAllCategories,getCategoryById};
