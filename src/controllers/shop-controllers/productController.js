@@ -4,7 +4,7 @@ import productService from "../../services/productService.js";
 const SUCCESS_STATUS = process.env.SUCCESS_STATUS;
 const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
 const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
-const ROW_PER_PAGE=6;
+const ROW_PER_PAGE=8;
 
 const formatQueryParams = async(filters, sort) => {
     //const {page,rowPerPage}=req.query;
