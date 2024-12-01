@@ -27,7 +27,6 @@ app.use(cors(corsOptions));
 app.get("/", (req, res) => {
     return res.send("Hello World");
 });
- feature/productDetails
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/users", userRouter);
