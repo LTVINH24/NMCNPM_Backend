@@ -14,43 +14,54 @@ const isCartItemsValid=(req)=>{
   }
   return true;
 };
+
 const addToCart=async(req,res)=>{
  try{
     if(!isCartItemsValid(req)){
       return res.status(BAD_REQUEST_STATUS).send({success:false,message:"Invalid request"})
     }
     const {userId,productId,quantity}=req.body
-    const cart=await cartServices.createCart(userId,productId,quantity)
-    res.status(SUCCESS_STATUS).json(cart)
+    const {success,data}=await cartServices.createCart(userId,productId,quantity)
+    if(!success){
+      return res.status(SERVER_ERROR_STATUS).send({success:false,message:data})
+    }
+    return res.status(SUCCESS_STATUS).json(data)
  }
  catch(error){
-    res.status(SERVER_ERROR_STATUS).send({success:false,message:"Server error"})
+   return res.status(SERVER_ERROR_STATUS).send({success:false,message:"Server error"})
  }
 }
 const removeFromCart=async(req,res)=>{
 try{
-        if(isCartItemsValid(req)){
+        if(!req.body.userId){
           return res.status(BAD_REQUEST_STATUS).send({success:false,message:"Invalid request"})
         }
-        const {userId,productId,quantity}=req.body
-        await cartServices.deleteCart(userId,productId,quantity)
-        res.status(SUCCESS_STATUS).send({success:true})
+      const {userId,productId,quantity}=req.body
+      const {success,data} = await cartServices.deleteCart(userId,productId,quantity)
+      if(!success){
+        return res.status(SERVER_ERROR_STATUS).send({success:false,message:data})
+      }
+        return res.status(SUCCESS_STATUS).json(data)
 }
 catch(error){
-    res.status(SERVER_ERROR_STATUS).send({success:false,message:"Server error"})
+   return res.status(SERVER_ERROR_STATUS).send({success:false,message:"Server error"})
 }
 }
-const getCard=async(req,res)=>{
+const getCart=async(req,res)=>{
   try{
    const userId=req.body.userId
-   const cartData =await cartServices.getCartByUserId(userId)
-   if(!cartData){
-    return res.status(BAD_REQUEST_STATUS).send({success:false,message:"User not valid"})
+   if(!userId)
+   {
+    return res.status(BAD_REQUEST_STATUS).send({success:false,message:"Invalid request"})
    }
-   res.status(SUCCESS_STATUS).json(cartData)
+   const {success,data} =await cartServices.getCartByUserId(userId)
+   if(!success){
+    return res.status(BAD_REQUEST_STATUS).send({success:false,message:data})
+   }
+   return res.status(SUCCESS_STATUS).json(data)
   }
   catch(error){
-    res.status(SERVER_ERROR_STATUS).send({success:false,message:"Server error"})
+   return res.status(SERVER_ERROR_STATUS).send({success:false,message:"Server error"})
   }
 }
-export {addToCart,removeFromCart,getCard}
+export {addToCart,removeFromCart,getCart}

@@ -3,34 +3,59 @@ import Cart from '../models/Cart.js';
 const cartService = {
 
     async createCart(userId,productId,quantity=1){
-        const existingCart=await Cart.findOne({userId,productId})
-        if(existingCart)
+        let cart = await Cart.findOne({userId:userId})
+        if(!cart)
         {
-            existingCart.quantity+=quantity
-            await existingCart.save()
-            await existingCart.populate('productId','name price')
-            return existingCart
+            cart = new Cart({userId:userId,items:[]})
         }
-        const newCart = new Cart({userId,productId,quantity})
-        await newCart.save()
-        await newCart.populate('productId','name price')
-        return newCart
+        const productIndex =cart.items.findIndex(item =>item.productId.toString()===productId)
+        if(productIndex>-1)
+        {
+            cart.items[productIndex].quantity+=quantity;
+        }
+        else{
+            cart.items.push({productId,quantity})
+        }
+        await cart.save()
+        const populateCart = await cart.populate('items.productId','name price image')
+        return ({success:true,data:populateCart});
     },
-    async deleteCart(userId,productId,quantity=1){
-        const itemCart=await Cart.findOne({userId,productId})
-
-        if(quantity>=itemCart.quantity)
-        {
-           await Cart.deleteOne({userId,productId})
-           return;
+    async deleteCart(userId,productId,quantity){
+        const cart=await Cart.findOne({userId})
+        if(!cart){
+            return ({success:false,data:"Cart not found"})
         }
-        itemCart.quantity-=quantity
-        await itemCart.save()
-        return itemCart
+        if(productId)
+        {
+            const itemIndex = cart.items.findIndex(item=>item.productId.toString()===productId)
+            if(itemIndex===-1){
+              return ({success:false,data:"Product not found in cart"})
+            }
+            if(quantity){
+                cart.items[itemIndex].quantity-=quantity
+                if(cart.items[itemIndex].quantity<=0){
+                    cart.items.splice(itemIndex,1)
+                }
+            }
+            else{
+                cart.items.splice(itemIndex,1)
+            }
+            await cart.save()
+            return {success:true,data:cart}
+        }
+        else{
+            const deleteCart = await Cart.findOneAndDelete({userId})
+            if(!deleteCart)return ({success:false,data:"Can not delete cart"})
+            return ({success:true,data:deleteCart})
+        }
     },
     async getCartByUserId(userId){
-        const cartItems= await Cart.find({userId}).populate('productId','name price')
-        return cartItems
+        const cartItem = await Cart.findOne({userId:userId})
+        console.log(cartItem)
+        if(!cartItem){
+            return ({success:false,data:"Can not found cart"})
+        }
+        return ({success:true,data:cartItem})
     }
 }
 
