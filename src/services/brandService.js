@@ -24,6 +24,9 @@ const brandService={
     getAllBrands:async()=>{
         return await Brand.find().lean();
     },
+    isExistById:async(id)=>{
+        return await Brand.exists({_id:id});
+    },
 };
 
 export default brandService;

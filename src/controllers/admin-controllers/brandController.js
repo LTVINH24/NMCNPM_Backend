@@ -5,6 +5,16 @@ const OK_STATUS=200;
 const BAD_REQUEST_STATUS=400;
 const INTERNAL_SERVER_ERROR_STATUS=500;
 
+const isMissDataToAddBrand=(req)=>{
+    const {name, description}=req.body;
+    return !name || !description;
+}
+
+const isMissDataToUpdateBrand=(req)=>{
+    const {name, description}=req.body;
+    return !name || !description;
+};
+
 const getAllBrands = async (req, res) => {
     try{
         const brands=await brandService.getAllBrands();
@@ -17,6 +27,10 @@ const getAllBrands = async (req, res) => {
 
 const addBrand = async (req, res) => {
     try{
+        if(isMissDataToAddBrand(req)){
+            return res.status(BAD_REQUEST_STATUS)
+            .send({message:"Missing data"});
+        };
         const {name, description} = req.body;
         if(await brandService.isExistByName(name)){
             return res.status(BAD_REQUEST_STATUS).send({
@@ -59,6 +73,10 @@ const deleteBrand = async (req, res) => {
 
 const updateBrand = async (req, res) => {
     try{
+        if(isMissDataToUpdateBrand(req)){
+            return res.status(BAD_REQUEST_STATUS)
+            .send({message:"Please fullfill name and description fields"});
+        };
         const brandId=req.params.id;
         const brand=await brandService.getBrandById(brandId);
         if(!brand){

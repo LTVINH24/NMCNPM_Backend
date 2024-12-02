@@ -1,8 +1,17 @@
 import categoryTypicalService from "../../services/categoryTypicalService.js";
 import categoryService from "../../services/categoryService.js";
+import productDetailsService from "../../services/productDetailsService.js";
 const OK_STATUS=200;
 const BAD_REQUEST_STATUS=400;
-const INTERNAL_SERVER_ERROR_STATUS=500;
+const INTERNAL_SERVER_ERROR_STATUS=500
+
+const isMissDataToAdd=(req)=>{
+    const {name, description, category_id} = req.body;
+    if(!name || !description || !category_id){
+        return true;
+    }
+    return false;
+}
 
 const getAllTypicalDetails=async (req, res) => {
     try{
@@ -17,6 +26,11 @@ const getAllTypicalDetails=async (req, res) => {
 
 const addTypicalDetail = async (req, res) => {
     try{
+        if(isMissDataToAdd(req)){
+            return res.status(BAD_REQUEST_STATUS)
+            .send({
+                message:"Please provide name, description and category_id to add typical detail"});
+        };
         const {name, description, category_id} = req.body;
         const category=await categoryService.getCategoryById(category_id);
         if(!category){
@@ -48,6 +62,7 @@ const deleteTypicalDetail = async (req, res) => {
             return res.status(BAD_REQUEST_STATUS).send({message:"Typical detail not found"});
         }
         await categoryTypicalService.deleteById(typicalDetailId);
+        await productDetailsService.deleteDetailsByPropertyId(typicalDetailId);
         return res.status(OK_STATUS).send({
             '_id':typicalDetailId,
             message:"Typical detail deleted successfully",

@@ -2,9 +2,28 @@ import productService from "../../services/productService.js";
 import uploadImageToCloud from "../../utils/uploadImageToCloud.js";
 import deleteImageFromDisk from "../../utils/deleteImageFromDisk.js";
 import productDetailsService from "../../services/productDetailsService.js";
+import brandService from "../../services/brandService.js";
+import categoryService from "../../services/categoryService.js";
 const SUCCESS_STATUS = 200;
 const BAD_REQUEST_STATUS = 400;
 const SERVER_ERROR_STATUS = 500;
+
+const isMissEssentialData=(req)=>{
+    const ESSENTIAL_DATA=["name","description","price","salePrice","category_id","brand_id"];
+    if(!req.body.product){
+        return true;
+    }
+    const product=JSON.parse(req.body.product);
+    for(const data of ESSENTIAL_DATA){
+        if(!product[data]){
+            return true;
+        }
+    }
+    return false;
+};
+
+
+
 const populateProductDetail=(productDetail)=>{
     const populatedProductDetails={
         product_id:productDetail.product_id,
@@ -34,6 +53,11 @@ const getProductById=async(req,res)=>{
     const {id}=req.params;
     try{
         const product=await productService.getProductById(id);
+        if(!product){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Product does not exist"});
+            return;
+        }
         res
         .status(SUCCESS_STATUS)
         .send(product);
@@ -47,6 +71,19 @@ const getProductById=async(req,res)=>{
 const addProduct=async(req,res)=>{
     
     try{
+        if(isMissEssentialData(req)){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Please provide essential data to add product"});
+        };
+        if(!await categoryService.isExistById(req.body.product.category_id)){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Category does not exist"});
+            return;
+        }
+        if(!await brandService.isExistById(req.body.product.brand_id)){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Brand does not exist"});
+        }
         const product=JSON.parse(req.body.product);
         const TMP_DIR_PATH="./tmp";
         const filePath=TMP_DIR_PATH+"/"+req.file.filename;
@@ -99,9 +136,23 @@ const getNewImageUrl=async(req)=>{
 };
 
 const updateByProductId=async(req,res)=>{
-    const {id}=req.params;
-    const product=JSON.parse(req.body.product);
+    
     try{
+        if(isMissEssentialData(req)){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Please provide essential data to update product"});
+        };
+        if(!await categoryService.isExistById(req.body.product.category_id)){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Category does not exist"});
+            return;
+        }
+        if(!await brandService.isExistById(req.body.product.brand_id)){
+            res.status(BAD_REQUEST_STATUS)
+            .send({message:"Brand does not exist"});
+        }
+        const {id}=req.params;
+        const product=JSON.parse(req.body.product);
         if(!await productService.isProductExist(id)){
             res.status(BAD_REQUEST_STATUS)
             .send({message:"Product does not exist"});

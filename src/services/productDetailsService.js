@@ -4,6 +4,10 @@ import ProductPropertyValues from "../models/ProductPropertyValues.js";
 
 
 const productDetailsService={
+    deleteDetailsByPropertyId:async(property_id)=>{
+        await ProductPropertyValues.deleteMany({property_id});
+    }
+    ,
     getProductDetailsByProductId:async(id)=>{
         const productDetails=await ProductPropertyValues.find({product_id:id}).populate('property_id').lean();
         return productDetails;

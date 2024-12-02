@@ -5,9 +5,22 @@ const OK_STATUS=200;
 const BAD_REQUEST_STATUS=400;
 const INTERNAL_SERVER_ERROR_STATUS=500;
 
+const isMissDataToAdd=(req)=>{
+    const {name, description}=req.body;
+    return !name || !description;
+}
+
+const isMissDataToUpdate=(req)=>{
+    const {name, description}=req.body;
+    return !name || !description;
+};
 
 const addCategory = async (req, res) => {
     try{
+        if(!isMissDataToAdd(req)){
+            return res.status(BAD_REQUEST_STATUS)
+            .send({message:"Please provide name and description"});
+        };
         const {name, description} = req.body;
         if(await categoryService.isExistByName(name)){
             return res.status(BAD_REQUEST_STATUS).send({
@@ -49,6 +62,10 @@ const deleteCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
     try{
+        if(isMissDataToUpdate(req)){
+            return res.status(BAD_REQUEST_STATUS)
+            .send({message:"Please fullfill name and description fields"});
+        };
         const categoryId=req.params.id;
         const {name, description} = req.body;
         const category=await categoryService.getCategoryById(categoryId);

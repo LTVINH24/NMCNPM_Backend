@@ -22,7 +22,10 @@ const categoryService={
     },
     updateCategory:async(id, data)=>{
         return await Category.findByIdAndUpdate(id, data, {new:true});
-    }
+    },
+    isExistById:async(id)=>{
+        return await Category.exists({_id:id});
+    },
 
 };
 export default categoryService;
