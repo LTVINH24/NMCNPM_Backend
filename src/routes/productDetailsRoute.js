@@ -4,6 +4,6 @@ import express from "express";
 const productDetailsRouter=express.Router();
 
 
-productDetailsRouter.get("/:id",getProductDetailsByProductId);
+productDetailsRouter.get("/get/:id",getProductDetailsByProductId);
 
 export default productDetailsRouter;

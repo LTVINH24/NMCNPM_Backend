@@ -6,27 +6,24 @@ const BAD_REQUEST_STATUS = 400;
 const SERVER_ERROR_STATUS = 500;
 
 
-const populateProductDetails=(propertyValues=[])=>{
-    const init={
-        product_id:propertyValues[0].product_id,
+const populateProductDetail=(propertyValues={})=>{
+    const populatedProductDetails={
+        ...propertyValues,
+        name:propertyValues.property_id.name,
     };
-    return propertyValues.reduce((acc,propertyValue)=>{
-        if(!acc[propertyValue.property_id.name]){
-            acc[propertyValue.property_id.name]=propertyValue.value;
-        }
-        return acc;
-    }
-    ,init);
+    delete populatedProductDetails.property_id;
+    return populatedProductDetails;
 }
 
 const getProductDetailsByProductId=async(req,res)=>{
     const {id}=req.params;
     try{
         
-        const productDetails=populateProductDetails(await productDetailsService.getByProductDetailsId(id));
+        const productDetails=await productDetailsService.getProductDetailsByProductId(id)
+        const populatedProductDetails=productDetails.map((value)=>populateProductDetail(value));
         res
         .status(SUCCESS_STATUS)
-        .send(productDetails);
+        .send(populatedProductDetails);
     }catch(err){
         res.status(SERVER_ERROR_STATUS)
             .send({message:err.message});

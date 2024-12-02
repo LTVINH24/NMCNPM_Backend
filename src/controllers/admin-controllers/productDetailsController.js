@@ -7,6 +7,15 @@ const SUCCESS_STATUS = 200;
 const BAD_REQUEST_STATUS = 400;
 const SERVER_ERROR_STATUS = 500;
 
+const populateProductDetail=(productDetail)=>{
+    const populatedProductDetails={
+        product_id:productDetail.product_id,
+        property_id:productDetail.property_id._id,  
+        name:productDetail.property_id.name,
+        value:productDetail.value,
+    };
+    return populatedProductDetails;
+};
 
 const getProductDetailsByProductId=async(req,res)=>{
     const {id}=req.params;
@@ -14,7 +23,7 @@ const getProductDetailsByProductId=async(req,res)=>{
         const productDetails=await productDetailsService.getByProductId(id);
         res
         .status(SUCCESS_STATUS)
-        .send(productDetails);
+        .send(productDetails.map(productDetail=>populateProductDetail(productDetail)));
     }catch(err){
         res.status(SERVER_ERROR_STATUS)
             .send({message:err.message});
@@ -28,6 +37,7 @@ const deleteProductDetailsByProductId=async(req,res)=>{
         res
         .status(SUCCESS_STATUS)
         .send({
+            '_id':id,
             message:"Product Details deleted successfully",
         });
     }catch(err){

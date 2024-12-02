@@ -30,7 +30,7 @@ const productService = {
     },
     
     getProductById: async (productId) => {
-        const product = await Product.findById(productId);
+        const product = await Product.findById(productId).populate('brand_id').populate('category_id').lean();
         return product;
     },
 
@@ -93,8 +93,6 @@ const productService = {
         
         return products;
     },
-    
-    
     
     getProductsBySearch: async (searchTerm,
         { brands, categories, sortField='price', sortOrder=1,minPrice=0,maxPrice=Number.MAX_VALUE }) => {

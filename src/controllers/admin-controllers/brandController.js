@@ -8,7 +8,7 @@ const INTERNAL_SERVER_ERROR_STATUS=500;
 const getAllBrands = async (req, res) => {
     try{
         const brands=await brandService.getAllBrands();
-        return res.status(OK_STATUS).send({brands});
+        return res.status(OK_STATUS).send(brands);
     }
     catch(e){
         return res.status(INTERNAL_SERVER_ERROR_STATUS).send({message:'Internal server error'});
