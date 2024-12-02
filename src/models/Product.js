@@ -1,16 +1,28 @@
 import mongoose from "mongoose";
 
 const productSchema= new mongoose.Schema({
-    type: {type: String, required: true},
+    category_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+    },
     name: {type: String, required: true},
     price: {type: Number, required: true},
     salePrice:{
         type:Number,
     },
-    brand: {type: String, required: true},
+    brand_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Brand',
+        required: true,
+    },
     totalStock:{type: Number,required:true},
     image:String,
     rating:{
+        type:Number,
+        default:0,
+    },
+    totalRating:{
         type:Number,
         default:0,
     },
@@ -20,15 +32,27 @@ const productSchema= new mongoose.Schema({
 });
 
 //exptected receit an arr
-productSchema.query.byType = function(types) {
-    if (!types || types.length <= 0) return this;
-    return this.where({ type: { $in: types.map(type => new RegExp(`^${type}$`, "i")) } });
+productSchema.query.byCategory = function(categories) {
+    if (!categories || categories.length <= 0){
+        return this.populate('category');
+    }
+    return this.populate({
+        path: 'category',
+        match:{
+            name:{$in:categories}
+        }
+    });
 };
 
 productSchema.query.byBrand = function(brands) {
-    if (!brands || brands.length <= 0) return this;
-    return this.where({
-        brand: { $in: brands.map(brand => new RegExp(`^${brand}$`, "i")) }
+    if (!brands || brands.length <= 0){
+        return this.populate('brand');
+    }
+    return this.populate({
+        path: 'brand',
+        match:{
+            name:{$in:brands}
+        }
     });
 };
 
@@ -37,7 +61,7 @@ productSchema.query.byPrice=function(minPrice,maxPrice){
     return this.where({price:{$gte:minPrice,$lte:maxPrice}});
 }
 
-productSchema.index({name:'text',brand:'text',type:'text',description:'text'});
+productSchema.index({name:'text',description:'text'});
 
 const Product=mongoose.model('Product',productSchema);
 

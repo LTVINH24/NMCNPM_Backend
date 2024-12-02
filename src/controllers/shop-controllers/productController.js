@@ -17,21 +17,21 @@ const formatQueryParams = async(filters, sort) => {
 }
 
 const formatSortParam=(req)=>{
-    const sort=req.query.sort||"price-asc";
+    const sort=req.query.sort||"price-desc";
     const SORT_FIELD_INDEX=0;
     const SORT_ORDER_INDEX=1;
     const sortParam=sort.split('-');
     const sortField=sortParam[SORT_FIELD_INDEX];
-    const sortOrder=sortParam[SORT_ORDER_INDEX];
+    const sortOrder=sortParam[SORT_ORDER_INDEX]==='asc'?1:-1;
     return {sortField,sortOrder};
 }
 
 const formatFilterParam=(req)=>{
     const brandsEncoded=req.query.brand||"";
-    const typesEncoded=req.query.type||"";
-    const brands=brandsEncoded?decodeURIComponent(brandsEncoded).split(','):[];
-    const types=typesEncoded?decodeURIComponent(typesEncoded).split(','):[];
-    return {brands,types};    
+    const categoriesEncoded=req.query.category||"";
+    const brands=brandsEncoded?decodeURIComponent(brandsEncoded).split(','):[].map((brand)=>brand.toLowerCase());
+    const categories=categoriesEncoded?decodeURIComponent(categoriesEncoded).split(','):[].map((category)=>category.toLowerCase());
+    return {brands,categories};    
 }
 
 const formatPriceParam=(req)=>{
@@ -50,11 +50,28 @@ const formatPriceParam=(req)=>{
 };
 const getQueryParams=(req)=>{
     const {page,rowPerPage}=req.query;
-    const {brands,types}=formatFilterParam(req);
+    const {brands,categories}=formatFilterParam(req);
     const {sortField,sortOrder}=formatSortParam(req);
     const {minPrice,maxPrice}=formatPriceParam(req);
+    return {brands,categories,sortField,sortOrder,page,rowPerPage,minPrice,maxPrice};
+}
 
-    return {brands,types,sortField,sortOrder,page,rowPerPage,minPrice,maxPrice};
+const populateProduct=(product)=>{
+    return {
+        ...product,
+        brand:product.brand_id.name,
+        category:product.category_id.name,
+    }
+};
+
+const populateAggregatedProducts=(product)=>{
+    delete product.category_id;
+    delete product.brand_id;
+    return {
+        ...product,
+        brand:product.brand.name,
+        category:product.category.name,
+    }
 }
 
 
@@ -63,12 +80,12 @@ const getQueryParams=(req)=>{
 const getAllFilteredProducts = async (req, res) => {
     try {
         const {
-            brands,types,
+            brands,categories,
             sortField,sortOrder,
             page=1,rowsPerPage=ROW_PER_PAGE,
             minPrice,maxPrice}=getQueryParams(req);
         const {onSales}=req.query;
-        let products = await productService.getProducts({ brands, types, sortField, sortOrder,minPrice,maxPrice });
+        let products = await productService.getProducts({ brands, categories, sortField, sortOrder,minPrice,maxPrice });
         if(onSales==='true'){
             products=products.filter((product)=>product.salePrice>0);
         }
@@ -77,7 +94,7 @@ const getAllFilteredProducts = async (req, res) => {
             products=products.slice((page-1)*rowsPerPage,page*rowsPerPage);
         }
         return res.status(SUCCESS_STATUS).send({
-            products,
+            products:products.map(product=>populateProduct(product)),
             totalProducts,
         })
     }
@@ -91,13 +108,13 @@ const getAllFilteredProducts = async (req, res) => {
 const searchProducts = async (req, res) => {
     try {
         const {
-            brands,types,
+            brands,categories,
             sortField,sortOrder,
             page=1,rowsPerPage=ROW_PER_PAGE,
             minPrice,maxPrice}=getQueryParams(req);
         const {onSales}=req.query;
         const {search}=req.query;
-        let products = await productService.getProductsBySearch(search,{ brands, types, sortField, sortOrder,minPrice,maxPrice });
+        let products = await productService.getProductsBySearch(search,{ brands, categories, sortField, sortOrder,minPrice,maxPrice });
         if(onSales==='true'){
             products=products.filter((product)=>product.salePrice>0);
         }
@@ -106,7 +123,7 @@ const searchProducts = async (req, res) => {
             products=products.slice((page-1)*rowsPerPage,page*rowsPerPage);
         }
         return res.status(SUCCESS_STATUS).send({
-            products,
+            products:products.map(product=>populateAggregatedProducts(product)),
             totalProducts,
         })
     }
@@ -116,4 +133,19 @@ const searchProducts = async (req, res) => {
         });
     }
 };
-export { getAllFilteredProducts,searchProducts};
+
+const getRelatedProducts=async(req,res)=>{
+    try{
+        const {productId}=req.params;
+        const products=await productService.getRelatedProductsByProductId(productId);
+        return res.status(SUCCESS_STATUS).send({
+            products:products.map(product=>populateAggregatedProducts(product)),
+        });
+    }
+    catch(e){
+        return res.status(SERVER_ERROR_STATUS).send({
+            message:"server error",
+        });
+    }
+}
+export { getAllFilteredProducts,searchProducts,getRelatedProducts};
