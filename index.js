@@ -31,16 +31,15 @@ app.use(cors(corsOptions));
 app.get("/", (req, res) => {
     return res.send("Hello World");
 });
-app.use("/api/users", userRouter);
-app.use("/api/products", productRouter);
+
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/product-details", productDetailsRouter);
-app.use("/admin/productDetails", adminProductDetailsRouter);
+app.use("/admin/product-details", adminProductDetailsRouter);
 app.use("/admin/products", adminProductRouter);
 app.use("/admin/brands", adminBrandRouter);
 app.use("/admin/categories", adminCategoryRouter);
-app.use("/admin/categoryTypicals", adminCategoryTypicalDetails);
+app.use("/admin/category-typicals", adminCategoryTypicalDetails);
 
 
 
