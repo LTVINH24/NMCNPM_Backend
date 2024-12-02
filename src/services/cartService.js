@@ -20,7 +20,7 @@ const cartService = {
         const populateCart = await cart.populate('items.productId','name price image')
         return ({success:true,data:populateCart});
     },
-    async deleteCart(userId,productId,quantity){
+    async deleteItemFromCart(userId,productId,quantity){
         const cart=await Cart.findOne({userId})
         if(!cart){
             return ({success:false,data:"Cart not found"})
@@ -43,11 +43,7 @@ const cartService = {
             await cart.save()
             return {success:true,data:cart}
         }
-        else{
-            const deleteCart = await Cart.findOneAndDelete({userId})
-            if(!deleteCart)return ({success:false,data:"Can not delete cart"})
-            return ({success:true,data:deleteCart})
-        }
+        
     },
     async getCartByUserId(userId){
         const cartItem = await Cart.findOne({userId:userId})

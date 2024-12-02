@@ -37,7 +37,7 @@ try{
           return res.status(BAD_REQUEST_STATUS).send({success:false,message:"Invalid request"})
         }
       const {userId,productId,quantity}=req.body
-      const {success,data} = await cartServices.deleteCart(userId,productId,quantity)
+      const {success,data} = await cartServices.deleteItemFromCart(userId,productId,quantity)
       if(!success){
         return res.status(SERVER_ERROR_STATUS).send({success:false,message:data})
       }
