@@ -12,7 +12,7 @@ const reviewService = {
         return reviews;
     },
     
-    async getReviewsByProduct(productId){
+    async getReviewsByProduct(productId, ratingFilter){
         const filter = { productId };
 
         if (ratingFilter) {

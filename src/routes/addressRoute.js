@@ -1,12 +1,18 @@
 import express from "express";
-import addressController from "../controllers/addressController.js";
+import { 
+    getAllAddresses, 
+    createAddress, 
+    deleteAddress, 
+    updateAddress, 
+    setDefaultAddress 
+} from "../controllers/addressController.js";
 
 const addressRouter = express.Router();
 
-addressRouter.get("/", addressController.getAddresses);
-addressRouter.get("/:id", addressController.getAddressById);
-addressRouter.post("/", addressController.createAddress);
-addressRouter.put("/:id", addressController.updateAddress);
-addressRouter.delete("/:id", addressController.deleteAddress);
+addressRouter.get("/", getAllAddresses);
+addressRouter.post("/", createAddress);
+addressRouter.put("/:id", updateAddress);
+addressRouter.delete("/:id", deleteAddress);
+addressRouter.patch("/:id/default", setDefaultAddress);
 
-export default router;
+export default addressRouter;
