@@ -34,10 +34,10 @@ const productSchema= new mongoose.Schema({
 //exptected receit an arr
 productSchema.query.byCategory = function(categories) {
     if (!categories || categories.length <= 0){
-        return this.populate('category');
+        return this.populate('category_id');
     }
     return this.populate({
-        path: 'category',
+        path: 'category_id',
         match:{
             name:{$in:categories}
         }
@@ -46,10 +46,10 @@ productSchema.query.byCategory = function(categories) {
 
 productSchema.query.byBrand = function(brands) {
     if (!brands || brands.length <= 0){
-        return this.populate('brand');
+        return this.populate('brand_id');
     }
     return this.populate({
-        path: 'brand',
+        path: 'brand_id',
         match:{
             name:{$in:brands}
         }
