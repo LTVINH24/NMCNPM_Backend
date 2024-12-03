@@ -26,7 +26,7 @@ const productService = {
             .byPrice(minPrice,maxPrice)
             .sort({ [sortField]: sortOrder })
             .exec();
-        return products.filter(product=>product.category!==null&&product.brand!==null);
+        return products.filter(product=>product.category_id&&product.brand_id);
     },
     
     getProductById: async (productId) => {

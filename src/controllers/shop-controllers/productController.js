@@ -6,15 +6,7 @@ const BAD_REQUEST_STATUS = process.env.BAD_REQUEST_STATUS;
 const SERVER_ERROR_STATUS = process.env.SERVER_ERROR_STATUS;
 const ROW_PER_PAGE=8;
 
-const formatQueryParams = async(filters, sort) => {
-    //const {page,rowPerPage}=req.query;
-    const sortField = sort?.field?.toLowerCase() || 'price';
-    const sortOrder = sort?.order?.toLowerCase() === 'desc' ? -1 : 1;
-    const brands = filters?.brands?.map((brand) => (brand.toLowerCase())) || [];
-    const types = filters?.types?.map((type) => (type.toLowerCase())) || [];
-    return {brands,types,sortField,sortOrder};
-    //return {brands,types,sortField,sortOrder,page,rowPAg};
-}
+
 
 const formatSortParam=(req)=>{
     const sort=req.query.sort||"price-desc";
