@@ -2,6 +2,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import mongoose from "./src/config/mongoose.js";
+import userRouter from "./src/routes/userRoute.js";
+import productRouter from "./src/routes/productRoute.js";
+import cartRoute from "./src/routes/cartRoute.js"
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import upload from './src/config/multer.js';
@@ -36,6 +39,7 @@ app.use("/products", productRouter);
 app.use("/admin/productDetails", adminProductDetailsRouter);
 app.use("/admin/products", adminProductRouter);
 app.use("/order",orderRouter)
+app.use("/cart",cartRoute)
 app.listen(process.env.PORT || 5000, () => {
     console.log(`Server started on http://localhost:${process.env.PORT||5000}`);
 });
